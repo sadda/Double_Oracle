@@ -1,0 +1,29 @@
+name: do
+channels:
+  - defaults
+dependencies:
+  - ca-certificates=2020.7.22=0
+  - certifi=2020.6.20=py38_0
+  - openssl=1.1.1h=he774522_0
+  - pip=20.2.2=py38_0
+  - python=3.8.5=h5fd99cc_1
+  - setuptools=49.6.0=py38_1
+  - sqlite=3.33.0=h2a8f88b_0
+  - vc=14.1=h0510ff6_4
+  - vs2015_runtime=14.16.27012=hf0eaf9b_3
+  - wheel=0.35.1=py_0
+  - wincertstore=0.2=py38_0
+  - zlib=1.2.11=h62dcd97_4
+  - pip:
+    - cffi==1.14.3
+    - cycler==0.10.0
+    - kiwisolver==1.2.0
+    - matplotlib==3.3.2
+    - mip==1.12.0
+    - numpy==1.19.2
+    - pillow==7.2.0
+    - pycparser==2.20
+    - pyparsing==2.4.7
+    - python-dateutil==2.8.1
+    - scipy==1.5.2
+prefix: C:\Users\lukas\anaconda3\envs\do
