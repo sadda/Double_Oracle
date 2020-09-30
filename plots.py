@@ -6,8 +6,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from util import *
-
 
 def save_figure(file_name):
     if not (file_name is None):
@@ -17,7 +15,7 @@ def save_figure(file_name):
 
 def plot_optimal_distributions(game, actions, distribution, player, file_name=None):
     plt.figure()
-    plt.title("Player " + str(player) + " distribution for " + "c = " + str(game.c))
+    plt.title("Player " + str(player) + " distribution")
     plt.xlabel("q")
     plt.ylabel("p[%]")
     plt.bar(actions, distribution, width=0.007, bottom=None,  align='center')
@@ -25,7 +23,7 @@ def plot_optimal_distributions(game, actions, distribution, player, file_name=No
     
 def plot_response_evolution(game, actions, player, file_name=None):
     plt.figure()
-    plt.title("Player " + str(player) + " responses for " + "c = " + str(game.c))
+    plt.title("Player " + str(player) + " responses")
     plt.xlabel("iteration")
     plt.ylabel("q")
     plt.plot(actions)
@@ -33,7 +31,7 @@ def plot_response_evolution(game, actions, player, file_name=None):
 
 def plot_value_evolution(game, lower_bounds, upper_bounds, file_name=None):
     plt.figure()
-    plt.title("Upper and lower bounds for " + "c = " + str(game.c))
+    plt.title("Upper and lower bounds")
     plt.xlabel("iteration")
     plt.xlabel("iteration")
     plt.ylabel("value of the game")
@@ -89,36 +87,6 @@ def plot_util_function(u, x1, x2, y1, y2, file_name=None):
     ax.set_title('surface')
     save_figure(file_name)
 
-def plot_game(game, xs, x_responses, xs_distribution, ys, y_responses, ys_distribution, lower_bounds, upper_bounds, label="", run=0, strat="", file_name=None):
-    xs_red, x_dist_red = compact_strategies(xs, xs_distribution, 2)
-    ys_red, y_dist_red = compact_strategies(ys, ys_distribution, 2)
-
-    fig, axs = plt.subplots(2, 2, figsize=(12,8) )
-    
-    axs[0, 0].set_title("Alice's optimal distribution")
-    axs[0, 0].bar(xs_red, x_dist_red, width=( max(xs_red) - min(xs_red))/80, bottom=None,  align='center')
-    axs[0, 0].set_xlim( game.X.getCube()[0][0]-0.1, game.X.getCube()[0][1]+0.1 )
-
-    axs[0, 1].set_title("Bob's optimal distribution")
-    axs[0, 1].bar(ys_red, y_dist_red, width=( max(ys_red) - min(ys_red))/80, bottom=None,  align='center')
-    axs[0, 1].set_xlim( game.Y.getCube()[0][0]-0.1, game.Y.getCube()[0][1]+0.1 )
-
-    axs[1, 0].set_title("best responses / iter")
-    axs[1, 0].plot(x_responses, color="blue")
-    axs[1, 0].plot(y_responses, color="red")
-    axs[1, 0].set_ylim( game.X.getCube()[0][0]-0.1, game.X.getCube()[0][1]+0.1 )
-
-    axs[1, 1].set_title("iterative utility bounds")
-    axs[1, 1].plot(lower_bounds, color="red")
-    axs[1, 1].plot(upper_bounds, color="blue")
-    axs[1, 1].set_ylim( -2, 2 )
-    
-    fig.suptitle("Game"+label+" | "+strat+" | < "+str( lower_bounds[-1] )+" , "+str( upper_bounds[-1] )+" >" )  
-    save_figure(file_name)
-
-
-
-
 
 def compute_uniform_a():
     
@@ -146,12 +114,11 @@ def plot_blotto(game, xs, p, player, a=compute_uniform_a(), file_name=None):
     x2 = convert_p3_p2(xs, a)
 
     plt.figure()
-    plt.title("Optimal distribution of player " + str(player) + " for " + "c = " + str(game.c))
+    plt.title("Optimal distribution of player " + str(player))
     plt.plot([0,1,0.5,0], [0,0,a,0])
     if max(p) - min(p) > 1e-8:
         plt.scatter(x2[:,0], x2[:,1], c=p, cmap='jet', alpha=0.75)
         plt.colorbar()
-        #plt.colorbar(boundaries=np.linspace(0,0.2,25))    
     else:
         plt.scatter(x2[:,0], x2[:,1], alpha=0.75)        
     save_figure(file_name)
@@ -242,88 +209,3 @@ def prep_util_function(u, x_bounds, y_bounds):
     ax.plot_surface(X, Y, Z)
     ax.set_title('Utility function')
     return fig
-
-
-def plot_output(game, xs, ys, x_responses, y_responses, xs_distribution, ys_distribution, lower_bounds, upper_bounds, method, run, text):
-    x_bounds = game.X.getCube()[0]
-    y_bounds = game.Y.getCube()[0]
-        
-    xs_red, x_dist_red = compact_strategies(xs, xs_distribution, 2)
-    ys_red, y_dist_red = compact_strategies(ys, ys_distribution, 2)
-
-    csv_print(xs, xs_distribution, ys, ys_distribution, lower_bounds, upper_bounds, 'output/game'+game.label+'_'+method+'_'+str(run)+'.csv')
-        
-    fig = prep_util_function(game.u, x_bounds, y_bounds)
-    fig.savefig("output/game_"+game.label)
-
-    prep_game_value(lower_bounds, upper_bounds, -2.5, 1.5)
-    plt.savefig("output/game_"+game.label+"_"+method+"_"+text+str(run)+"_value")
-
-    prep_mixed_strategy("Alice", x_bounds, xs_red, x_dist_red)
-    plt.savefig("output/game_"+game.label+"_"+method+"_"+text+str(run)+"_alice")
-
-    prep_mixed_strategy("Bob", y_bounds, ys_red, y_dist_red)
-    plt.savefig("output/game_"+game.label+"_"+method+"_"+text+str(run)+"_bob")
-
-    if method == "FP":
-        x_dens, xs = prep_optimal_distribution_FP(x_responses, x_bounds, "Alice")
-        plt.savefig("output/game_"+game.label+"_"+method+"_"+text+str(run)+"_alice_KDE")
-        y_dens, ys = prep_optimal_distribution_FP(y_responses, y_bounds, "Bob")
-        plt.savefig("output/game_"+game.label+"_"+method+"_"+text+str(run)+"_bob_KDE")
-
-
-def plot_DO_vs_FP_value(game, lower_bounds_DO, upper_bounds_DO, lower_bounds_FP, upper_bounds_FP, run):
-    with open("output/game_"+game.label+"_DOvsFP_value_"+str(run)+".csv", 'w', newline='') as file:
-        csv_bounds(lower_bounds_DO, upper_bounds_DO, file)
-        csv_bounds(lower_bounds_FP, upper_bounds_FP, file)
-
-    plt.clf()
-    plt.ylim( -2.5, 1.5 )
-    plt.title("Iterative bounds")
-    plt.xlabel("iteration")
-    plt.ylabel("value of the game")
-    plt.plot(lower_bounds_DO, color="green")
-    plt.plot(upper_bounds_DO, color="green")
-    plt.plot(lower_bounds_FP, color="red")
-    plt.plot(upper_bounds_FP, color="red")
-    plt.text(len(upper_bounds_DO)/2, 1.3, "Double Oracle", fontsize=10, color="green")
-    plt.text(len(upper_bounds_DO)/2, 1.1, "Fictional Play", fontsize=10, color="red")
-    plt.savefig("output/game_"+game.label+"_DOvsFP_"+str(run)+"_value")
-    
-
-
-def plot_DO_vs_FP_strategy(game, x_responses_FP, y_responses_FP, xs_DO, ys_DO, xs_distribution_DO, ys_distribution_DO, run):
-    x_bounds = game.X.getCube()[0]
-    y_bounds = game.Y.getCube()[0]
-        
-    xs_red, x_dist_red = compact_strategies(xs_DO, xs_distribution_DO, 2)
-    ys_red, y_dist_red = compact_strategies(ys_DO, ys_distribution_DO, 2)
-    
-    prep_optimal_distribution_FP(x_responses_FP,x_bounds, "Alice")
-    plt.bar(xs_red, x_dist_red, width=( max(xs_red) - min(xs_red))/80, bottom=None,  align='center')
-    plt.savefig("output/game_"+game.label+"_DOvsFP_"+str(run)+"_alice")
-    #plt.show()
-
-    prep_optimal_distribution_FP(y_responses_FP, y_bounds, "Bob")
-    plt.bar(ys_red, y_dist_red, width=( max(ys_red) - min(ys_red))/80, bottom=None,  align='center')
-    #plt.show()
-    plt.savefig("output/game_"+game.label+"_DOvsFP_"+str(run)+"_bob")
-    with open("output/game_DOvsFP_continuous_Alice_DO.csv", 'w', newline='') as file:
-        csv_strategy("q", xs_DO, xs_distribution_DO, file)
-    with open("output/game_DOvsFP_continuous_Bob_DO.csv", 'w', newline='') as file:
-        csv_strategy("q", ys_DO, ys_distribution_DO, file)
-    ##############################################################################################
-
-def benchmark(games, method="DO", iters=20, runs=10, text=""):
-    for game in games:    
-        run = 0
-        while run < runs:
-            print("game"+game.label+", run ", run)
-            try:
-                xs, x_responses, x_dist, ys, y_responses, y_dist, lower_bounds, upper_bounds, itr = solve(game, method, iters, printout=False)
-            except:
-                continue
-            #plot_game(game, xs, x_responses, x_dist, ys, y_responses, y_dist, lower_bounds, upper_bounds, run=run, strat=optimizationStrategy, save=True, label=game.label+"_"+method)
-            plot_output(game, xs, ys, x_responses, y_responses, x_dist, y_dist, lower_bounds, upper_bounds, method, run, text)
-            run += 1
-
